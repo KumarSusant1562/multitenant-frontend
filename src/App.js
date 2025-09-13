@@ -6,7 +6,11 @@ import NoteForm from './components/NoteForm';
 import UpgradeBanner from './components/UpgradeBanner';
 import './App.css';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+let API = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// normalize to avoid accidental double slashes when concatenating endpoints
+if (API.endsWith('/')) API = API.slice(0, -1);
+const API_BASE = API;
+console.log("API URL:", API);
 
 function App() {
   const [token, setToken] = useState('');
@@ -23,12 +27,13 @@ function App() {
     const email = e.target.email.value;
     const password = e.target.password.value;
     try {
-      const res = await axios.post(`${API}/login`, { email, password });
+      const res = await axios.post(`${API_BASE}/login`, { email, password });
       setToken(res.data.token);
       setRole(res.data.role);
       setTenant(res.data.tenant);
       setError('');
     } catch (err) {
+      console.error('Login error:', err.response?.status, err.response?.data, err.message);
       setError('Login failed');
     }
   };
